@@ -27,7 +27,7 @@ const OrderPizza = () => {
     formData.extras.length <= 10 &&
     formData.size &&
     formData.dough;
-
+    
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -172,7 +172,7 @@ const OrderPizza = () => {
                 {formData.extras.length}/10 seçili
               </p>
               <div className="orderpizza-checkbox-grid">
-                {["Sucuk", "Zeytin", "Mantar", "Mozarella", "Biber", "Soğan", "Domates", "Ananas"].map((item) => (
+                {["Sucuk", "Zeytin", "Mantar", "Mozarella", "Biber", "Soğan", "Domates", "Ananas 🤢", "Jambon", "Ekstra 1", "Ekstra 2", "Ekstra 3"].map((item) => (
                   <label key={item} className="orderpizza-checkbox-label">
                     <input
                       type="checkbox"
@@ -180,7 +180,9 @@ const OrderPizza = () => {
                       checked={formData.extras.includes(item)}
                       onChange={handleCheckbox}
                       disabled={!formData.extras.includes(item) && formData.extras.length >= 10}
+                      className="animated-checkbox"
                     />
+                    <span className="custom-checkbox"></span>
                     {item}
                   </label>
                 ))}

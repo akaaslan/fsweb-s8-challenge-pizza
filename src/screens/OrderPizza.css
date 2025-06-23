@@ -67,7 +67,7 @@
   z-index: 10;
   max-width: 96rem;
   margin: 0 auto;
-  padding: 5.5rem 1rem 2.5rem 1rem; /* extra top padding for header */
+  padding: 5.5rem 1rem 2.5rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
@@ -149,7 +149,6 @@
   flex-direction: column;
   align-items: flex-start;
 }
-/* Boyut ve Hamur yan yana */
 .orderpizza-row {
   display: flex;
   gap: 2rem;
@@ -160,15 +159,13 @@
   min-width: 180px;
 }
 
-/* Ek Malzemeler grid */
 .orderpizza-checkbox-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  justify-items: start; /* Ensures items are left-aligned in each cell */
+  justify-items: start;
 }
 
-/* Adet ve Sipariş Ver yan yana */
 .orderpizza-summary-row {
   display: flex;
   align-items: center;
@@ -259,12 +256,10 @@
   }
 }
 
-/* Utility */
 .text-red {
   color: #CE2829;
 }
 
-/* Adet counter stands alone */
 .orderpizza-quantity-standalone {
   display: flex;
   align-items: center;
@@ -273,7 +268,6 @@
   justify-content: flex-end;
 }
 
-/* Grouped left-aligned actions and totals */
 .orderpizza-summary-actions {
   display: flex;
   flex-direction: column;
@@ -319,7 +313,6 @@
   transform: scale(0.9);
 }
 
-/* Optional: Disabled state */
 .btn.btn-disabled,
 .btn:disabled {
   opacity: 0.5;
@@ -330,23 +323,83 @@
   box-shadow: none;
 }
 
+.animated-checkbox {
+  opacity: 0;
+  width: 1.5em;
+  height: 1.5em;
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 0;
+  z-index: 2;
+  cursor: pointer;
+}
+.animated-checkbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
+  box-shadow: none;
+  background: #f0f0f0;
+}
+
 .orderpizza-checkbox-label {
+  position: relative;
+  padding-left: 2.2em;
   display: flex;
   align-items: center;
-  font-size: 1.25rem; /* Bigger label text */
+  font-size: 1.25rem;
   font-weight: 500;
   cursor: pointer;
   gap: 0.5em;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
-.orderpizza-checkbox-label input[type="checkbox"] {
+.custom-checkbox {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
   width: 1.5em;
   height: 1.5em;
-  accent-color: #CE2829; /* Optional: matches your theme */
-  margin-right: 0.5em;
+  border: 2px solid #ce2829;
+  border-radius: 0.4em;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(206,40,41,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Animated red radio group */
+.animated-checkbox:checked + .custom-checkbox {
+  border-color: #ffe68d;
+  background: #ffe68d;
+}
+
+@keyframes checkbox-pop {
+  0% { transform: scale(1) translateY(-50%);}
+  50% { transform: scale(1.2) translateY(-50%);}
+  100% { transform: scale(1) translateY(-50%);}
+}
+
+.custom-checkbox::after {
+  content: "";
+  display: block;
+  width: 0.7em;
+  height: 0.4em;
+  border-left: 3px solid #ce2829;
+  border-bottom: 3px solid #ce2829;
+  opacity: 0;
+  transform: scale(0) rotate(-45deg) translateY(-10%);
+  transition: all 0.2s cubic-bezier(.68,-0.55,.27,1.55);
+}
+
+.animated-checkbox:checked + .custom-checkbox::after {
+  opacity: 1;
+  transform: scale(1) rotate(-45deg) translateY(-10%);
+}
+
 .orderpizza-options {
   display: flex;
   flex-direction: row;
@@ -354,8 +407,8 @@
   justify-content: flex-start;
   background: #fff;
   border-radius: 0.75rem;
-  width: 100%;              /* changed from fixed 320px to relative */
-  min-width: 220px;         /* optional: minimum width for small screens */
+  width: 100%;
+  min-width: 220px;
   min-height: 48px;
   position: relative;
   margin-bottom: 1.5rem;
@@ -365,7 +418,7 @@
 }
 
 .orderpizza-option {
-  flex: 1 1 0;              /* allow to grow and shrink equally */
+  flex: 1 1 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -387,7 +440,6 @@
   display: none;
 }
 
-/* Animated slider background */
 .orderpizza-options .pizza-slider {
   position: absolute;
   top: 0;
@@ -400,14 +452,12 @@
   box-shadow: 0 2px 12px 0 #ce282955;
 }
 
-/* Option text color when selected */
 .orderpizza-option.selected {
   color: #fff;
   font-weight: 700;
   text-shadow: 0 1px 4px #a11a1a33;
 }
 
-/* Make textarea fixed size and centered */
 .orderpizza-textarea {
   width: 95%;
   height: 120px;
