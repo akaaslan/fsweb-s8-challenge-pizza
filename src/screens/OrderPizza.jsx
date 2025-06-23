@@ -18,6 +18,9 @@ const OrderPizza = () => {
     quantity: 1,
   });
 
+  const [nameError, setNameError] = useState("");
+  const [extrasError, setExtrasError] = useState("");
+
   const basePrice = 85.5;
   const totalExtras = formData.extras.length * 5;
   const totalPrice = (basePrice + totalExtras) * formData.quantity;
@@ -31,14 +34,38 @@ const OrderPizza = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    if (name === "name") {
+      if (value.length > 0 && value.length < 3) {
+        setNameError("İsim en az 3 karakter olmalı.");
+      } else {
+        setNameError("");
+      }
+    }
   };
 
   const handleCheckbox = (e) => {
     const { value, checked } = e.target;
-    const updated = checked
-      ? [...formData.extras, value]
-      : formData.extras.filter((item) => item !== value);
+    let updated;
+    if (checked) {
+      if (formData.extras.length >= 10) {
+        toast.error("10 seçime ulaşıldı!");
+        setExtrasError("En fazla 10 malzeme seçebilirsiniz.");
+        return;
+      }
+      updated = [...formData.extras, value];
+    } else {
+      updated = formData.extras.filter((item) => item !== value);
+    }
     setFormData({ ...formData, extras: updated });
+
+    if (checked && updated.length === 10) {
+      setExtrasError("En fazla 10 malzeme seçebilirsiniz.");
+    } else if (updated.length < 4) {
+      setExtrasError("En az 4 malzeme seçmelisiniz.");
+    } else {
+      setExtrasError("");
+    }
   };
 
   const handleQuantity = (type) => {
@@ -52,16 +79,31 @@ const OrderPizza = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    if (formData.name.length < 3) {
+      setNameError("İsim en az 3 karakter olmalı.");
+      toast.error("İsim en az 3 karakter olmalı.");
+      return;
+    }
+
+    if (formData.extras.length < 4 || formData.extras.length > 10) {
+      setExtrasError("Ek malzeme seçimi 4 ile 10 arasında olmalı.");
+      toast.error("Ek malzeme seçimi 4 ile 10 arasında olmalı.");
+      return;
+    }
+
     if (!isFormValid) {
       toast.error("Lütfen formu eksiksiz doldurun!");
       return;
     }
 
+    setNameError("");
+    setExtrasError("");
     history.push("/success", { order: formData });
   };
 
   return (
     <div className="orderpizza-root">
+      <ToastContainer position="top-center" />
       <div className="orderpizza-bg-pattern"></div>
 
       {/* header */}
@@ -74,14 +116,25 @@ const OrderPizza = () => {
             style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,1))" }}
           />
         </div>
-        <p className="orderpizza-breadcrumb">Ana Sayfa - Seçenekler - <span className="text-bold">Sipariş Oluştur</span></p>
       </header>
 
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%" }}>
+        <img 
+          src="../images/iteration-2-images/pictures/form-banner.png" 
+          style={{ width: "50%", height: "auto", borderRadius: "0.5rem", objectFit: "cover" }}
+          alt="Form Banner"
+        />
+      </div>
+      {/* breadcrumb */}
+      <p className="orderpizza-breadcrumb">Ana Sayfa - Seçenekler - <span className="text-red">Sipariş Oluştur</span></p>
+
       <main className="orderpizza-main">
-        <div className="orderpizza-description" style={{ width: "100%" }}>
+        <div className="orderpizza-description" style={{ width: "47%", margin: "0 auto" }}>
           <h1 className="orderpizza-description-header">Position Absolute Acı Pizza</h1>
           <h2 className="orderpizza-description-price">85.50₺</h2>
-          <p className="orderpizza-description-text">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Itaque non dignissimos inventore debitis, ad provident incidunt quae iusto laudantium doloremque mollitia a nihil, consectetur dolor ea explicabo quibusdam tempore deleniti.</p>
+          <p className="orderpizza-description-text">
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Itaque non dignissimos inventore debitis, ad provident incidunt quae iusto laudantium doloremque mollitia a nihil, consectetur dolor ea explicabo quibusdam tempore deleniti.
+          </p>
         </div>
         <div className="orderpizza-form-row">
           <form onSubmit={handleSubmit} className="orderpizza-form">
@@ -94,9 +147,12 @@ const OrderPizza = () => {
                 placeholder="Adınızı girin (min 3 karakter)"
                 className="orderpizza-input"
               />
+              {nameError && (
+                <span className="orderpizza-error">{nameError}</span>
+              )}
             </div>
 
-            {/* boyut hamur*/}
+            {/* boyut hamur */}
             <div className="orderpizza-row">
               <div className="orderpizza-form-group-half">
                 <h3 className="orderpizza-label">Boyut Seç <span className="text-red">*</span></h3>
@@ -106,24 +162,24 @@ const OrderPizza = () => {
                     className="pizza-slider"
                     style={{
                       transform:
-                        formData.size === "Küçük"
+                        formData.size === "S"
                           ? "translateX(0%)"
-                          : formData.size === "Orta"
+                          : formData.size === "M"
                           ? "translateX(100%)"
-                          : formData.size === "Büyük"
+                          : formData.size === "L"
                           ? "translateX(200%)"
                           : "translateX(0%)",
                       background:
-                        formData.size === "Küçük"
+                        formData.size === "S"
                           ? "linear-gradient(90deg, #ffb3b3 100%, #ce2829 100%)"
-                          : formData.size === "Orta"
+                          : formData.size === "M"
                           ? "linear-gradient(90deg, #ff6666 100%, #ce2829 100%)"
-                          : formData.size === "Büyük"
+                          : formData.size === "L"
                           ? "linear-gradient(90deg, #ce2829 100%, #a11a1a 100%)"
                           : "linear-gradient(90deg, #ffb3b3 100%, #ce2829 100%)",
                     }}
                   />
-                  {["Küçük", "Orta", "Büyük"].map((size, idx) => (
+                  {["S", "M", "L"].map((size, idx) => (
                     <label
                       key={size}
                       className={
@@ -187,6 +243,9 @@ const OrderPizza = () => {
                   </label>
                 ))}
               </div>
+              {extrasError && (
+                <span className="orderpizza-error">{extrasError}</span>
+              )}
             </div>
 
             <div className="orderpizza-form-group">
@@ -201,40 +260,56 @@ const OrderPizza = () => {
               />
             </div>
           </form>
+        </div>
+        <hr className="orderpizza-summary-divider" />
+        <div className="orderpizza-summary-below">
+          <div className="orderpizza-quantity-standalone">
+            <h3 className="orderpizza-summary-title">Adet</h3>
+            <div className="orderpizza-quantity-controls">
+              <button
+                type="button"
+                onClick={() => handleQuantity("decrease")}
+                className="orderpizza-quantity-btn"
+              >
+                <Minus size={16} className="orderpizza-quantity-minus"
+                  style={{
+                    position: "relative",
+                    right: "0.5rem",
+                    bottom: "0.1rem"
+                  }} />
+              </button>
+              <span className="orderpizza-quantity">{formData.quantity}</span>
+              <button
+                type="button"
+                onClick={() => handleQuantity("increase")}
+                className="orderpizza-quantity-btn"
+              >
+                <Plus size={16} className="orderpizza-quantity-plus" style={{
+                  position: "relative",
+                  right: "0.5rem",
+                  bottom: "0.1rem"
+                }} />
+              </button>
+            </div>
+          </div>
           <aside className="orderpizza-summary">
             <div className="orderpizza-summary-card">
-              {/* adet */}
-              <div className="orderpizza-quantity-standalone">
-                <h3 className="orderpizza-summary-title">Adet</h3>
-                <div className="orderpizza-quantity-controls">
-                  <button
-                    type="button"
-                    onClick={() => handleQuantity("decrease")}
-                    className="orderpizza-quantity-btn"
-                  >
-                    <Minus size={16} className="orderpizza-quantity-minus"
-                    style={{
-                      position: "relative", 
-                      right: "0.5rem",
-                      bottom: "0.1rem"
-                    }}/>
-                  </button>
-                  <span className="orderpizza-quantity">{formData.quantity}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleQuantity("increase")}
-                    className="orderpizza-quantity-btn"
-                  >
-                    <Plus size={16} className="orderpizza-quantity-plus" style={{
-                      position: "relative", 
-                      right: "0.5rem",
-                      bottom: "0.1rem"
-                    }}/>
-                  </button>
+              <div className="orderpizza-summary-body">
+                <p className="orderpizza-total-label">Sipariş Toplamı</p>
+                <div className="orderpizza-total-row">
+                  <span className="orderpizza-total-text">Seçimler: </span>
+                  <span className="orderpizza-total-price">
+                    {totalExtras.toFixed(2)}₺
+                  </span>
+                </div>
+                <div className="orderpizza-total-row">
+                  <span className="orderpizza-total-bold" style={{ color: "#CE2829" }}>Toplam: </span>
+                  <span className="orderpizza-total-highlight" style={{ color: "#CE2829" }}>
+                    {totalPrice.toFixed(2)}₺
+                  </span>
                 </div>
               </div>
-              {/* siparis verirken ozet falan burda gorunuyo*/}
-              <div className="orderpizza-summary-actions">
+              <div className="orderpizza-summary-actions-bottom">
                 <button
                   type="submit"
                   disabled={!isFormValid}
@@ -244,28 +319,11 @@ const OrderPizza = () => {
                 >
                   <ShoppingCart size={20} style={{ marginRight: "0.5rem" }} /> SİPARİŞ VER
                 </button>
-                <div className="orderpizza-summary-body">
-                  <p className="orderpizza-total-label">Sipariş Toplamı</p>
-                  <div className="orderpizza-total-row">
-                    <span className="orderpizza-total-text">Seçimler:</span>
-                    <span className="orderpizza-total-price">
-                      {totalExtras.toFixed(2)}₺
-                    </span>
-                  </div>
-                  <div className="orderpizza-total-row">
-                    <span className="orderpizza-total-bold">Toplam:</span>
-                    <span className="orderpizza-total-highlight">
-                      {totalPrice.toFixed(2)}₺
-                    </span>
-                  </div>
-                </div>
               </div>
             </div>
           </aside>
         </div>
       </main>
-
-      <ToastContainer position="top-center" />
     </div>
   );
 };
