@@ -1,9 +1,13 @@
 .orderpizza-root {
+  min-height: 100vh;
   min-width: 100vw;
+  width: 100vw;
+  height: 100vh;
   box-sizing: border-box;
-  background: #fff; /* or your preferred beige */
+  background: #fff;
   position: relative;
-  border-radius: 10px;
+  border-radius: 0;
+  overflow-x: hidden;
 }
 .orderpizza-bg-pattern {
   inset: 0;
@@ -14,11 +18,11 @@
 .orderpizza-header {
   top: 0;
   left: 0;
-  height: 10vh;
+  height: 11vh;
   z-index: 10;
   background: #CE2829;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  border-radius: 10px;
+  border-radius: 0px;
 }
 .orderpizza-header-inner {
   max-width: 200vw;
@@ -33,6 +37,20 @@
   height: 3rem;
   margin-bottom: 0;
   padding-top: 0.5rem;
+}
+.orderpizza-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #d8d8d8;
+  font-size: 1rem;
+  justify-content: center;
+  margin-right: 10rem;
+  margin-bottom: 10rem;
+}
+.text-bold {
+  font-weight: 500;
+  color: #fff;
 }
 .orderpizza-title {
   font-size: 2rem;
@@ -56,7 +74,22 @@
 }
 @media (min-width: 1024px) {
   .orderpizza-main {
+    flex-direction: column;
+  }
+  .orderpizza-form-row {
+    display: flex;
     flex-direction: row;
+    gap: 2.5rem;
+    width: 100%;
+  }
+  .orderpizza-form {
+    flex: 1 1 0;
+    max-width: 700px;
+  }
+  .orderpizza-summary {
+    width: 350px;
+    min-width: 300px;
+    margin-left: 2.5rem;
   }
 }
 .orderpizza-form {
@@ -167,6 +200,7 @@
   font-weight: bold;
   cursor: pointer;
   transition: background 0.2s;
+  justify-content: center;
 }
 .orderpizza-quantity-btn:hover {
   background: #CE2829;
@@ -315,12 +349,13 @@
 /* Animated red radio group */
 .orderpizza-options {
   display: flex;
-  flex-direction: row;      /* Ensure row layout */
+  flex-direction: row;
   align-items: center;
   justify-content: flex-start;
   background: #fff;
   border-radius: 0.75rem;
-  width: 320px;
+  width: 100%;              /* changed from fixed 320px to relative */
+  min-width: 220px;         /* optional: minimum width for small screens */
   min-height: 48px;
   position: relative;
   margin-bottom: 1.5rem;
@@ -330,7 +365,7 @@
 }
 
 .orderpizza-option {
-  flex: 1;
+  flex: 1 1 0;              /* allow to grow and shrink equally */
   display: flex;
   align-items: center;
   justify-content: center;

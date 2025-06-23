@@ -1,18 +1,37 @@
-import React from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import OrderPizza from './screens/OrderPizza'
-import Success from './screens/Success' 
+import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Route, Switch, useLocation } from "react-router-dom";
+import OrderPizza from './screens/OrderPizza';
+import Success from './screens/Success';
+import Home from './screens/Home';
+import LoadingOverlay from './screens/LoadingOverlay';
 
-const App = () => {
+function AppContent() {
+  const location = useLocation();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    const delay = Math.random() * 500 + 100;
+    const timeout = setTimeout(() => setLoading(false), delay);
+    return () => clearTimeout(timeout);
+  }, [location.pathname]);
+
   return (
-    <Router>
+    <>
+      {loading && <LoadingOverlay />}
       <Switch>
-        <Route exact path="/" component={OrderPizza} />
+        <Route exact path="/" component={Home} />
+        <Route exact path="/order" component={OrderPizza} />
         <Route path="/success" component={Success} />
-        {/* İstersen 404 için bir <Route> daha ekleyebilirsin */}
       </Switch>
-    </Router>
+    </>
   );
-};
+}
+
+const App = () => (
+  <Router>
+    <AppContent />
+  </Router>
+);
 
 export default App;

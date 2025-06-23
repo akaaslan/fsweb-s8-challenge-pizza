@@ -29,6 +29,7 @@ const Success = () => {
 
       <div className="success-header">
         <div className="success-header-inner">
+            <img src= "/images/iteration-1-images/logo.svg" alt="Logo" className="success-logo" />
           <h1 className="success-header-title">Sipariş Alındı!</h1>
         </div>
       </div>
