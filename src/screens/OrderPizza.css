@@ -48,6 +48,11 @@
   margin-right: 25rem;
   margin-top: 10rem;
 }
+
+.orderpizza-footer-spacer {
+  margin-top: 3rem;
+}
+
 .text-bold {
   font-weight: 500;
   color: #fff;
@@ -143,20 +148,19 @@
 }
 .orderpizza-summary-card {
   background: #FAF7F2;
-  padding: 1.2rem 1.2rem 0.8rem 1.2rem; /* daha az padding */
-  border-radius: 1.5rem;
+  padding: 1.2rem 1.2rem 0.8rem 1.2rem;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
   position: sticky;
   top: 6rem;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  min-height: 160px; /* daha kısa minimum yükseklik */
+  min-height: 160px;
   height: 100%;
   justify-content: space-between;
 }
 .orderpizza-summary-body {
-  padding-bottom: 0.7rem; /* alt boşluk azaltıldı */
+  padding-bottom: 0.7rem;
 }
 .orderpizza-summary-actions-bottom {
   margin-top: auto;
@@ -578,7 +582,6 @@
   }
 }
 
-/* Formu ortalamak için */
 .orderpizza-form-row {
   display: flex;
   flex-direction: column;

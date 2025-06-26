@@ -10,6 +10,7 @@ import {
   footerInstagram,
   footerContacts,
 } from "./data";
+import Footer from "../components/Footer";
 
 const Home = () => {
   const history = useHistory();
@@ -92,7 +93,7 @@ const Home = () => {
         </div>
       </div>
 
-      <div className="home-footer">
+      {/* <div className="home-footer">
         <footer className="footer">
           <div className="footer-section1">
             <img src="/images/iteration-2-images/footer/logo-footer.svg" alt="Pizza Logo" />
@@ -123,7 +124,8 @@ const Home = () => {
             </div>
           </div>
         </footer>
-      </div>
+      </div> */}
+      <Footer />
     </div>
   );
 };

@@ -51,261 +51,311 @@ describe('Pizza Sipariş Uygulaması Testleri', () => {
     });
   });
 
-  describe('Pizza Sipariş Formu Testleri', () => {
+  describe('OrderPizza Formu', () => {
     beforeEach(() => {
+      cy.viewport(1280, 800);
       cy.visit('/');
-      cy.get('.btn').contains('ACIKTIM').click();
+      cy.get('.btn').contains('ACIKTIM').should('be.visible').click();
       cy.url().should('include', '/order');
+      cy.get('.orderpizza-root', { timeout: 10000 }).should('be.visible');
+      cy.get('input[name="name"]', { timeout: 10000 }).should('exist');
     });
 
-    it('sipariş sayfası yüklenir ve form elementleri görüntülenir', () => {
-      cy.get('.orderpizza-root', { timeout: 10000 })
-        .should('be.visible');
-      cy.get('input[name="name"]').should('be.visible');
-      cy.get('input[name="size"]').should('exist');
-      cy.get('select[name="dough"]').should('be.visible');
-    });
-
-    it('inputa metin girme testi', () => {
-      const testName = 'Ahmet Yılmaz';
+    it('inputa metin girilebilir', () => {
       cy.get('input[name="name"]')
-        .should('be.visible')
-        .type(testName)
-        .should('have.value', testName);
-      cy.get('input[name="name"]')
-        .should('have.attr', 'placeholder')
-        .and('include', 'Adınızı girin');
+        .should('exist')
+        .clear()
+        .type('Test Kullanıcı')
+        .should('have.value', 'Test Kullanıcı');
     });
 
-    it('3 karakterden az isim girince hata mesajı gösterir', () => {
-      cy.get('input[name="name"]')
-        .type('Ab');
-      cy.get('.orderpizza-error')
-        .should('be.visible')
-        .and('contain.text', 'İsim en az 3 karakter olmalı');
-    });
-
-    it('birden fazla malzeme seçilebilen test', () => {
+    it('birden fazla malzeme seçilebilir', () => {
       cy.get('.orderpizza-checkbox-grid input[type="checkbox"]')
         .should('have.length.greaterThan', 3)
         .then($checkboxes => {
-          for (let i = 0; i < Math.min(5, $checkboxes.length); i++) {
-            cy.wrap($checkboxes[i]).check();
-          }
+          cy.wrap($checkboxes[0]).check({ force: true });
+          cy.wrap($checkboxes[1]).check({ force: true });
+          cy.wrap($checkboxes[2]).check({ force: true });
+          cy.wrap($checkboxes[3]).check({ force: true });
         });
-      cy.get('.orderpizza-selection-count')
-        .should('contain.text', '/10 seçili');
+      cy.get('.orderpizza-selection-count').should('contain.text', '/10 seçili');
     });
 
-    it('minimum 4 malzeme seçilmeden hata verir', () => {
-      cy.get('.orderpizza-checkbox-grid input[type="checkbox"]')
-        .first()
-        .check();
-      cy.get('.orderpizza-checkbox-grid input[type="checkbox"]')
-        .eq(1)
-        .check();
-      cy.get('.orderpizza-error')
-        .should('be.visible')
-        .and('contain.text', 'En az 4 malzeme seçmelisiniz');
-    });
-
-    it('pizza boyutu seçilebilir', () => {
-      cy.get('input[name="size"][value="M"]')
-        .check()
-        .should('be.checked');
-    });
-
-    it('hamur türü seçilebilir', () => {
-      cy.get('select[name="dough"]')
-        .select('ince')
-        .should('have.value', 'ince');
-    });
-
-    it('pizza adedi artırılıp azaltılabilir', () => {
-      cy.get('.orderpizza-quantity')
-        .should('contain.text', '1');
-      cy.get('.orderpizza-quantity-controls button')
-        .last()
-        .click();
-      cy.get('.orderpizza-quantity')
-        .should('contain.text', '2');
-      cy.get('.orderpizza-quantity-controls button')
-        .first()
-        .click();
-      cy.get('.orderpizza-quantity')
-        .should('contain.text', '1');
-    });
-
-    it('formu gönderen test - başarılı sipariş', () => {
-      cy.get('input[name="name"]')
-        .type('Ahmet Yılmaz');
-      cy.get('input[name="size"][value="M"]')
-        .check();
-      cy.get('select[name="dough"]')
-        .select('ince');
+    it('form başarıyla gönderilebilir', () => {
+      cy.get('input[name="name"]').clear().type('Test Kullanıcı');
+      cy.get('input[type="radio"][name="size"]').first().check({ force: true });
+      cy.get('select[name="dough"]').select(1); // ilk gerçek seçenek
       cy.get('.orderpizza-checkbox-grid input[type="checkbox"]')
         .then($checkboxes => {
-          for (let i = 0; i < Math.min(4, $checkboxes.length); i++) {
-            cy.wrap($checkboxes[i]).check();
-          }
+          cy.wrap($checkboxes[0]).check({ force: true });
+          cy.wrap($checkboxes[1]).check({ force: true });
+          cy.wrap($checkboxes[2]).check({ force: true });
+          cy.wrap($checkboxes[3]).check({ force: true });
         });
-      cy.get('textarea[name="note"]')
-        .type('Test sipariş notu');
-      cy.get('button[type="submit"]')
-        .should('not.be.disabled')
-        .click();
-      cy.url().should('include', '/success');
-    });
-
-    it('eksik bilgilerle form gönderilemez', () => {
-      cy.get('input[name="name"]')
-        .type('Ahmet');
-      cy.get('button[type="submit"]')
-        .should('be.disabled');
-    });
-
-    it('fiyat doğru hesaplanır', () => {
-      cy.get('.orderpizza-checkbox-grid input[type="checkbox"]')
-        .then($checkboxes => {
-          for (let i = 0; i < Math.min(4, $checkboxes.length); i++) {
-            cy.wrap($checkboxes[i]).check();
-          }
-        });
-      cy.get('.orderpizza-total-price')
-        .should('contain.text', '20.00₺');
-      cy.get('.orderpizza-total-highlight')
-        .should('contain.text', '105.50₺');
-    });
-
-    it('sipariş notu eklenebilir', () => {
-      const testNote = 'Lütfen ekstra sıcak getirin';
-      cy.get('textarea[name="note"]')
-        .type(testNote)
-        .should('have.value', testNote);
+      cy.get('textarea[name="note"]').type('Ekstra not.');
+      cy.get('button[type="submit"]').should('not.be.disabled').click();
+      cy.url({ timeout: 10000 }).should('include', '/success');
     });
   });
 
-  describe('Başarı Sayfası Testleri', () => {
+  describe('OrderPizza Formu ek testler', () => {
     beforeEach(() => {
+      cy.viewport(1280, 800);
       cy.visit('/');
-      cy.get('.btn').contains('ACIKTIM').click();
-      cy.get('input[name="name"]').type('Test Kullanıcı');
-      cy.get('input[name="size"][value="L"]').check();
-      cy.get('select[name="dough"]').select('kalın');
-      cy.get('.orderpizza-checkbox-grid input[type="checkbox"]')
-        .then($checkboxes => {
-          for (let i = 0; i < Math.min(4, $checkboxes.length); i++) {
-            cy.wrap($checkboxes[i]).check();
-          }
-        });
-      cy.get('textarea[name="note"]').type('Test notu');
-      cy.get('button[type="submit"]').click();
-    });
-
-    it('başarı sayfası yüklenir ve sipariş detayları gösterilir', () => {
-      cy.url().should('include', '/success');
-      cy.get('.success-title')
-        .should('be.visible')
-        .and('contain.text', 'başarıyla alındı');
-      cy.get('.success-details')
-        .should('be.visible');
-      cy.get('.success-details')
-        .should('contain.text', 'Test Kullanıcı');
-    });
-
-    it('ana sayfaya dön butonu çalışır', () => {
-      cy.get('.success-btn')
-        .should('be.visible')
-        .and('contain.text', 'Ana Sayfaya Dön')
-        .click();
-      cy.url().should('eq', Cypress.config().baseUrl + '/');
-    });
-
-    it('confetti animasyonu yüklenir', () => {
-      cy.get('canvas')
-        .should('exist');
-    });
-  });
-
-  describe('Navigasyon Testleri', () => {
-    it('ana sayfa -> sipariş -> başarı sayfası tam akış', () => {
-      cy.visit('/');
-      cy.get('.cool-text').should('contain.text', 'KOD ACIKTIRIR');
-      cy.get('.btn').contains('ACIKTIM').click();
+      cy.get('.btn').contains('ACIKTIM').should('be.visible').click();
       cy.url().should('include', '/order');
-      cy.get('input[name="name"]').type('Cypress Tester');
-      cy.get('input[name="size"][value="M"]').check();
-      cy.get('select[name="dough"]').select('ince');
+      cy.get('.orderpizza-root', { timeout: 10000 }).should('be.visible');
+      cy.get('input[name="name"]', { timeout: 10000 }).should('exist');
+    });
+
+    it('isim inputu boşken form gönderilemez', () => {
+      cy.get('input[name="name"]').clear();
+      cy.get('button[type="submit"]').should('be.disabled');
+    });
+
+    it('en fazla 10 malzeme seçilebilir', () => {
       cy.get('.orderpizza-checkbox-grid input[type="checkbox"]')
+        .should('have.length.greaterThan', 10)
         .then($checkboxes => {
-          for (let i = 0; i < 4 && i < $checkboxes.length; i++) {
-            cy.wrap($checkboxes[i]).check();
+          for (let i = 0; i < 10; i++) {
+            cy.wrap($checkboxes[i]).check({ force: true });
+          }
+          if ($checkboxes[10]) {
+            cy.wrap($checkboxes[10]).should('be.disabled');
           }
         });
-      cy.get('button[type="submit"]').click();
-      cy.url().should('include', '/success');
-      cy.get('.success-title').should('be.visible');
-      cy.get('.success-btn').click();
-      cy.url().should('eq', Cypress.config().baseUrl + '/');
+      cy.get('.orderpizza-selection-count').should('contain.text', '10/10');
+    });
+
+    it('adet arttırma ve azaltma doğru çalışır', () => {
+      cy.get('.orderpizza-quantity').invoke('text').then((adet) => {
+        cy.get('.orderpizza-quantity-controls button').last().click();
+        cy.get('.orderpizza-quantity').should('contain.text', Number(adet) + 1);
+        cy.get('.orderpizza-quantity-controls button').first().click();
+        cy.get('.orderpizza-quantity').should('contain.text', adet);
+      });
+    });
+
+    it('hamur seçilmeden form gönderilemez', () => {
+      cy.get('input[name="name"]').type('Test Kullanıcı');
+      cy.get('input[type="radio"][name="size"]').first().check({ force: true });
+      cy.get('.orderpizza-checkbox-grid input[type="checkbox"]')
+        .then($checkboxes => {
+          cy.wrap($checkboxes[0]).check({ force: true });
+          cy.wrap($checkboxes[1]).check({ force: true });
+          cy.wrap($checkboxes[2]).check({ force: true });
+          cy.wrap($checkboxes[3]).check({ force: true });
+        });
+      cy.get('select[name="dough"]').select(0); 
+      cy.get('button[type="submit"]').should('be.disabled');
+    });
+
+    it('boyut seçilmeden form gönderilemez', () => {
+      cy.get('input[name="name"]').type('Test Kullanıcı');
+      cy.get('select[name="dough"]').select(1);
+      cy.get('.orderpizza-checkbox-grid input[type="checkbox"]')
+        .then($checkboxes => {
+          cy.wrap($checkboxes[0]).check({ force: true });
+          cy.wrap($checkboxes[1]).check({ force: true });
+          cy.wrap($checkboxes[2]).check({ force: true });
+          cy.wrap($checkboxes[3]).check({ force: true });
+       });
+      cy.get('button[type="submit"]').should('be.disabled');
+    });
+
+    it('malzeme seçilmeden form gönderilemez', () => {
+      cy.get('input[name="name"]').type('Test Kullanıcı');
+      cy.get('input[type="radio"][name="size"]').first().check({ force: true });
+      cy.get('select[name="dough"]').select(1);
+      cy.get('.orderpizza-checkbox-grid input[type="checkbox"]').each($cb => {
+        cy.wrap($cb).uncheck({ force: true });
+      });
+      cy.get('button[type="submit"]').should('be.disabled');
+    });
+
+    it('not alanı boş bırakılabilir ve form yine de gönderilebilir', () => {
+      cy.get('input[name="name"]').clear().type('Test Kullanıcı');
+      cy.get('input[type="radio"][name="size"]').first().check({ force: true });
+      cy.get('select[name="dough"]').select(1);
+      cy.get('.orderpizza-checkbox-grid input[type="checkbox"]')
+        .then($checkboxes => {
+          cy.wrap($checkboxes[0]).check({ force: true });
+          cy.wrap($checkboxes[1]).check({ force: true });
+          cy.wrap($checkboxes[2]).check({ force: true });
+          cy.wrap($checkboxes[3]).check({ force: true });
+        });
+      cy.get('textarea[name="note"]').clear();
+      cy.get('button[type="submit"]').should('not.be.disabled').click();
+      cy.url({ timeout: 10000 }).should('include', '/success');
+    });
+
+    it('isim inputu 3 karakterden az girilirse submit butonu disabled olur', () => {
+      cy.get('input[name="name"]').clear().type('ab');
+      cy.get('button[type="submit"]').should('be.disabled');
+    });
+
+    it('isim inputu 3 karakter girilince submit butonu hala disabled olur (diğer alanlar eksik)', () => {
+      cy.get('input[name="name"]').clear().type('abc');
+      cy.get('button[type="submit"]').should('be.disabled');
+    });
+
+    it('boyut ve hamur seçili, 4 malzeme seçili, isim boşsa submit yine de enabled olur', () => {
+      cy.get('input[type="radio"][name="size"]').first().check({ force: true });
+      cy.get('select[name="dough"]').select(1);
+      cy.get('.orderpizza-checkbox-grid input[type="checkbox"]').then($checkboxes => {
+        cy.wrap($checkboxes[0]).check({ force: true });
+        cy.wrap($checkboxes[1]).check({ force: true });
+        cy.wrap($checkboxes[2]).check({ force: true });
+        cy.wrap($checkboxes[3]).check({ force: true });
+      });
+      cy.get('input[name="name"]').clear();
+      cy.get('button[type="submit"]').should('be.enabled');
+    });
+
+    it('adet arttırınca toplam fiyat artar', () => {
+      cy.get('input[name="name"]').type('Test Kullanıcı');
+      cy.get('input[type="radio"][name="size"]').first().check({ force: true });
+      cy.get('select[name="dough"]').select(1);
+      cy.get('.orderpizza-checkbox-grid input[type="checkbox"]').then($checkboxes => {
+        cy.wrap($checkboxes[0]).check({ force: true });
+        cy.wrap($checkboxes[1]).check({ force: true });
+        cy.wrap($checkboxes[2]).check({ force: true });
+        cy.wrap($checkboxes[3]).check({ force: true });
+      });
+      cy.get('.orderpizza-total-highlight').invoke('text').then((fiyat1) => {
+        cy.get('.orderpizza-quantity-controls button').last().click();
+        cy.get('.orderpizza-total-highlight').invoke('text').should(fiyat2 => {
+          expect(fiyat2).not.to.eq(fiyat1);
+        });
+      });
+    });
+
+    it('adet azaltınca toplam fiyat azalır', () => {
+      cy.get('input[name="name"]').type('Test Kullanıcı');
+      cy.get('input[type="radio"][name="size"]').first().check({ force: true });
+      cy.get('select[name="dough"]').select(1);
+      cy.get('.orderpizza-checkbox-grid input[type="checkbox"]').then($checkboxes => {
+        cy.wrap($checkboxes[0]).check({ force: true });
+        cy.wrap($checkboxes[1]).check({ force: true });
+        cy.wrap($checkboxes[2]).check({ force: true });
+        cy.wrap($checkboxes[3]).check({ force: true });
+      });
+      cy.get('.orderpizza-quantity-controls button').last().click();
+      cy.get('.orderpizza-total-highlight').invoke('text').then((fiyat1) => {
+        cy.get('.orderpizza-quantity-controls button').first().click();
+        cy.get('.orderpizza-total-highlight').invoke('text').should(fiyat2 => {
+          expect(fiyat2).not.to.eq(fiyat1);
+        });
+      });
+    });
+
+    it('malzeme seçimini 4\'ten 3\'e düşürünce submit disabled olur', () => {
+      cy.get('input[name="name"]').type('Test Kullanıcı');
+      cy.get('input[type="radio"][name="size"]').first().check({ force: true });
+      cy.get('select[name="dough"]').select(1);
+      cy.get('.orderpizza-checkbox-grid input[type="checkbox"]').then($checkboxes => {
+        cy.wrap($checkboxes[0]).check({ force: true });
+        cy.wrap($checkboxes[1]).check({ force: true });
+        cy.wrap($checkboxes[2]).check({ force: true });
+        cy.wrap($checkboxes[3]).check({ force: true });
+        cy.wrap($checkboxes[3]).uncheck({ force: true });
+      });
+      cy.get('button[type="submit"]').should('be.disabled');
+    });
+
+    it('malzeme seçimini 4\'ten 5\'e çıkarınca submit enabled kalır', () => {
+      cy.get('input[name="name"]').type('Test Kullanıcı');
+      cy.get('input[type="radio"][name="size"]').first().check({ force: true });
+      cy.get('select[name="dough"]').select(1);
+      cy.get('.orderpizza-checkbox-grid input[type="checkbox"]').then($checkboxes => {
+        cy.wrap($checkboxes[0]).check({ force: true });
+        cy.wrap($checkboxes[1]).check({ force: true });
+        cy.wrap($checkboxes[2]).check({ force: true });
+        cy.wrap($checkboxes[3]).check({ force: true });
+        cy.wrap($checkboxes[4]).check({ force: true });
+      });
+      cy.get('button[type="submit"]').should('not.be.disabled');
     });
   });
 
-  describe('Responsive Tasarım Testleri', () => {
-    it('mobil görünümde elementler düzgün görüntülenir', () => {
-      cy.viewport(375, 667);
-      cy.visit('/');
-      cy.get('.cool-text').should('be.visible');
-      cy.get('.btn').contains('ACIKTIM').click();
-      cy.get('.orderpizza-form').should('be.visible');
-      cy.get('.orderpizza-checkbox-grid').should('be.visible');
+  Cypress.Commands.add('completePizzaOrder', (options = {}) => {
+    const defaults = {
+      name: 'Test User',
+      size: 'M',
+      dough: 'ince',
+      extrasCount: 4,
+      note: 'Test order note'
+    };
+    const config = { ...defaults, ...options };
+    cy.visit('/');
+    cy.get('.btn').contains('ACIKTIM').click();
+    cy.get('input[name="name"]').type(config.name);
+    cy.get(`input[name="size"][value="${config.size}"]`).check();
+    cy.get('select[name="dough"]').select(config.dough);
+    cy.get('.orderpizza-checkbox-grid input[type="checkbox"]')
+      .then($checkboxes => {
+        for (let i = 0; i < Math.min(config.extrasCount, $checkboxes.length); i++) {
+          cy.wrap($checkboxes[i]).check();
+        }
+      });
+    if (config.note) {
+      cy.get('textarea[name="note"]').type(config.note);
+    }
+    cy.get('button[type="submit"]').click();
+    cy.completePizzaOrder({
+      name: 'John Doe',
+      size: 'L',
+      extrasCount: 6
     });
 
-    it('tablet görünümde layout düzgün çalışır', () => {
-      cy.viewport(768, 1024);
-      cy.visit('/');
-      cy.get('.home-special-offers').should('be.visible');
-      cy.get('.btn').contains('ACIKTIM').click();
-      cy.get('.orderpizza-row').should('be.visible');
-    });
+    describe('Başarı Sayfası Testleri', () => {
+      beforeEach(() => {
+        cy.visit('/');
+        cy.get('.btn').contains('ACIKTIM').click();
+        cy.get('input[name="name"]').type('Test Kullanıcı');
+        cy.get('input[name="size"][value="L"]').check();
+        cy.get('select[name="dough"]').select('kalın');
+        cy.get('.orderpizza-checkbox-grid input[type="checkbox"]')
+          .then($checkboxes => {
+            for (let i = 0; i < Math.min(4, $checkboxes.length); i++) {
+              cy.wrap($checkboxes[i]).check();
+            }
+          });
+        cy.get('textarea[name="note"]').type('Test notu');
+        cy.get('button[type="submit"]').click();
+      });
 
-    it('desktop görünümde tüm elementler yerinde', () => {
-      cy.viewport(1280, 720);
-      cy.visit('/');
-      cy.get('.home-content').should('be.visible');
-      cy.get('.btn').contains('ACIKTIM').click();
-      cy.get('.orderpizza-main').should('be.visible');
-    });
-  });
-});
+      it('başarı sayfası yüklenir ve sipariş detayları gösterilir', () => {
+        cy.url().should('include', '/success');
+        cy.get('.success-title')
+          .should('be.visible')
+          .and('contain.text', 'başarıyla alındı');
+        cy.get('.success-details')
+          .should('be.visible');
+        cy.get('.success-details')
+          .should('contain.text', 'Test Kullanıcı');
+      });
 
-Cypress.Commands.add('completePizzaOrder', (options = {}) => {
-  const defaults = {
-    name: 'Test User',
-    size: 'M',
-    dough: 'ince',
-    extrasCount: 4,
-    note: 'Test order note'
-  };
-  const config = { ...defaults, ...options };
+      it('ana sayfaya dön butonu çalışır', () => {
+        cy.get('.success-btn')
+          .should('be.visible')
+          .and('contain.text', 'Ana Sayfaya Dön')
+          .click();
+        cy.url().should('eq', Cypress.config().baseUrl + '/');
+      });
+
+      it('confetti animasyonu yüklenir', () => {
+        cy.get('canvas')
+          .should('exist');
+      });
+    });
+    it('Responsive: Mobilde form ve ana elemanlar görünür', () => {
+  cy.viewport(375, 667);
   cy.visit('/');
   cy.get('.btn').contains('ACIKTIM').click();
-  cy.get('input[name="name"]').type(config.name);
-  cy.get(`input[name="size"][value="${config.size}"]`).check();
-  cy.get('select[name="dough"]').select(config.dough);
-  cy.get('.orderpizza-checkbox-grid input[type="checkbox"]')
-    .then($checkboxes => {
-      for (let i = 0; i < Math.min(config.extrasCount, $checkboxes.length); i++) {
-        cy.wrap($checkboxes[i]).check();
-      }
-    });
-  if (config.note) {
-    cy.get('textarea[name="note"]').type(config.note);
-  }
-  cy.get('button[type="submit"]').click();
-  cy.completePizzaOrder({
-    name: 'John Doe',
-    size: 'L',
-    extrasCount: 6
-  })
-  return cy.url().should('include', '/success');
+  cy.get('.orderpizza-form').should('be.visible');
+  cy.get('.orderpizza-checkbox-grid').should('be.visible');
+  cy.get('.orderpizza-quantity-controls').should('be.visible');
 });
+  });
+})

@@ -306,7 +306,7 @@
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    justify-content: center; /* changed from flex-start to center */
+    justify-content: center; 
     width: 100%;
     padding: 2rem;
     box-sizing: border-box;
@@ -360,7 +360,15 @@
     padding: 2rem;
     background-color: #292929;
     color: #fff;
-    gap: 2rem
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.footer-section1,
+.footer-section2,
+.footer-section3 {
+  flex: 1 1 200px;
+  min-width: 200px;
 }
 
 .footer-section1 {
@@ -412,4 +420,12 @@
   border-radius: 0.5rem;
   object-fit: cover;
   background: #fff;
+}
+
+@media (max-width: 900px) {
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2rem;
+  }
 }

@@ -5,7 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ShoppingCart, Plus, Minus } from "lucide-react";
 import "./OrderPizza.css";
-
+import Footer from "../components/Footer";
 const OrderPizza = () => {
   const history = useHistory();
 
@@ -76,7 +76,7 @@ const OrderPizza = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.name.length < 3) {
@@ -98,7 +98,21 @@ const OrderPizza = () => {
 
     setNameError("");
     setExtrasError("");
-    history.push("/success", { order: formData });
+    try {
+      await axios.post(
+        'https://reqres.in/api/pizza/reqres-free-v1',
+        formData,
+        {
+          headers: {
+            'x-api-key': 'reqres-free-v1'
+          }
+        }
+      );
+      toast.success("Sipariş başarıyla gönderildi!");
+      history.push("/success", { order: formData });
+    } catch (error) {
+      toast.error("Sipariş gönderilemedi. Lütfen tekrar deneyin.");
+    }
   };
 
   return (
@@ -324,6 +338,9 @@ const OrderPizza = () => {
           </aside>
         </div>
       </main>
+      <div className="orderpizza-footer-spacer">
+        <Footer style={{ marginTop: "3rem" }} />
+      </div>
     </div>
   );
 };
